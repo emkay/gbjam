@@ -17,23 +17,30 @@ function preload() {
 function create() {
   game.physics.startSystem(Phaser.Physics.ARCADE)
   player = game.add.sprite(100, 100, 'ship')
-  player.anchor.setTo(0.5, 0.5)
+  player.anchor.set(0.5, 0.5)
+
   game.physics.enable(player, Phaser.Physics.ARCADE)
+
+  player.body.drag.set(100)
+  player.body.maxVelocity.set(200)
   cursors = game.input.keyboard.createCursorKeys()
   fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR)
 }
 
 function update() {
   if (player.alive) {
-    player.body.velocity.setTo(0, 0)
+    if (cursors.up.isDown) {
+      game.physics.arcade.accelerationFromRotation(player.rotation, 200, player.body.acceleration);
+    } else {
+      player.body.acceleration.set(0);
+    }
+
     if (cursors.left.isDown) {
-      player.body.velocity.x = -200
+      player.body.angularVelocity = -300;
     } else if (cursors.right.isDown) {
-      player.body.velocity.x = 200
-    } else if (cursors.up.isDown) {
-      player.body.velocity.y = -200
-    } else if (cursors.down.isDown) {
-      player.body.velocity.y = 200
+      player.body.angularVelocity = 300;
+    } else {
+      player.body.angularVelocity = 0;
     }
   }
 
