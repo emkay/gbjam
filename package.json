@@ -1,0 +1,30 @@
+{
+  "name": "gbjam",
+  "version": "1.0.0",
+  "description": "gbjam",
+  "main": "index.js",
+  "scripts": {
+    "start": "wzrd app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emkay/gbjam.git"
+  },
+  "keywords": [
+    "game",
+    "boy",
+    "jam"
+  ],
+  "author": "Michael Matuzak",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/emkay/gbjam/issues"
+  },
+  "homepage": "https://github.com/emkay/gbjam#readme",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "browserify": "^11.0.1",
+    "wzrd": "^1.3.1"
+  }
+}
