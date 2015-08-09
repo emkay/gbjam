@@ -26,14 +26,15 @@ function preload() {
 }
 
 function create() {
+  game.world.setBounds(0, 0, 1920, 1200)
   game.renderer.clearBeforeRender = false
   game.renderer.roundPixels = true
 
   game.physics.startSystem(Phaser.Physics.ARCADE)
 
-  game.add.tileSprite(0, 0, 800, 600, 'space')
-  starsDim = game.add.tileSprite(0, 0, 800, 600, 'starsDim')
-  starsBright = game.add.tileSprite(0, 0, 800, 600, 'starsBright')
+  game.add.tileSprite(0, 0, 1920, 1200, 'space')
+  starsDim = game.add.tileSprite(0, 0, 1920, 1200, 'starsDim')
+  starsBright = game.add.tileSprite(0, 0, 1920, 1200, 'starsBright')
 
   bullets = game.add.group()
   bullets.enableBody = true
@@ -51,21 +52,19 @@ function create() {
   player.body.maxVelocity.set(200)
   cursors = game.input.keyboard.createCursorKeys()
   fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR)
+  game.camera.follow(player)
 }
 
 function update() {
   if (isAlive(player)) {
     if (cursors.up.isDown) {
       game.physics.arcade.accelerationFromRotation(player.rotation, 200, player.body.acceleration)
-      starsBright.tilePosition.y += 8
-      starsDim.tilePosition.y -= 8
     } else {
       player.body.acceleration.set(0)
     }
-
+    
     if (cursors.left.isDown) {
       player.body.angularVelocity = -300
-
     } else if (cursors.right.isDown) {
       player.body.angularVelocity = 300
     } else {
@@ -87,5 +86,6 @@ function update() {
     }
   }
 
+  game.world.wrap(player, 0, true)
   // collision stuff
 }
