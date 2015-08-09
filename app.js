@@ -1,8 +1,8 @@
-var game = new Phaser.Game(160, 144, Phaser.AUTO, 'Super Space Prime', { 
+var game = new Phaser.Game(160, 144, Phaser.AUTO, '', {
   preload: preload,
   create: create,
   update: update
-})
+}, false, false)
 
 var player
 var cursors
