@@ -49,11 +49,18 @@ function create() {
   player = game.add.sprite(75, 75, 'ship')
   player.anchor.set(0.5, 0.5)
 
-  asteroid = game.add.sprite(500, 500, 'asteroidSmall')
+  asteroid = game.add.sprite(100, 100, 'asteroidSmall')
 
   game.physics.enable(player, Phaser.Physics.ARCADE)
+  game.physics.enable(asteroid, Phaser.Physics.ARCADE)
 
   player.body.collideWorldBounds = true
+  player.body.immovable = true
+
+  asteroid.body.collideWorldBounds = true
+  asteroid.body.bounce.setTo(1, 1)
+  asteroid.body.velocity.x = 25
+  asteroid.body.velocity.y = -25
 
   player.body.drag.set(100)
   player.body.maxVelocity.set(200)
@@ -94,5 +101,7 @@ function update() {
   }
 
   game.world.wrap(player, 0, true)
+
   // collision stuff
+  game.physics.arcade.collide(player, asteroid)
 }
