@@ -18,11 +18,11 @@ function isAlive(player) {
 }
 
 function preload() {
-  game.load.image('space', 'space.png')
-  game.load.image('starsDim', 'space_stars_dim.png')
-  game.load.image('starsBright', 'space_stars_bright.png')
-  game.load.image('bullet', 'bullet.png')
-  game.load.image('ship', 'ship.png')
+  game.load.image('space', 'assets/space.png')
+  game.load.image('starsDim', 'assets/space_stars_dim.png')
+  game.load.image('starsBright', 'assets/space_stars_bright.png')
+  game.load.image('bullet', 'assets/bullet.png')
+  game.load.image('ship', 'assets/ship.png')
 }
 
 function create() {
