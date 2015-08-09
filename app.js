@@ -5,6 +5,7 @@ var game = new Phaser.Game(160, 144, Phaser.AUTO, '', {
 }, false, false)
 
 var player
+var asteroid
 var cursors
 var fireButton
 var starsDim
@@ -23,6 +24,8 @@ function preload() {
   game.load.image('starsBright', 'assets/space_stars_bright.png')
   game.load.image('bullet', 'assets/bullet.png')
   game.load.image('ship', 'assets/ship.png')
+  game.load.image('asteroidSmall', 'assets/asteroid_small.png')
+  game.load.image('asteroidMed', 'assets/asteroid_medium.png')
 }
 
 function create() {
@@ -45,6 +48,8 @@ function create() {
 
   player = game.add.sprite(75, 75, 'ship')
   player.anchor.set(0.5, 0.5)
+
+  asteroid = game.add.sprite(500, 500, 'asteroidSmall')
 
   game.physics.enable(player, Phaser.Physics.ARCADE)
 
