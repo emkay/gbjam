@@ -53,6 +53,8 @@ function create() {
 
   game.physics.enable(player, Phaser.Physics.ARCADE)
 
+  player.body.collideWorldBounds = true
+
   player.body.drag.set(100)
   player.body.maxVelocity.set(200)
   cursors = game.input.keyboard.createCursorKeys()
