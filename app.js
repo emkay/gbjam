@@ -21,9 +21,6 @@ function create() {
   game.renderer.clearBeforeRender = false
   game.renderer.roundPixels = true
 
-  game.renderer.clearBeforeRender = false
-  game.renderer.roundPixels = true
-
   game.physics.startSystem(Phaser.Physics.ARCADE)
 
   game.add.tileSprite(0, 0, game.width, game.height, 'bg')
