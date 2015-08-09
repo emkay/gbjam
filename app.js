@@ -7,12 +7,20 @@ var game = new Phaser.Game(160, 144, Phaser.AUTO, '', {
 var player
 var cursors
 var fireButton
+var starsDim
+var starsBright
 var bullet
 var bullets
 var bulletTime = 0
 
+function isAlive(player) {
+  return player.alive
+}
+
 function preload() {
-  game.load.image('bg', 'bg.png')
+  game.load.image('space', 'space.png')
+  game.load.image('starsDim', 'space_stars_dim.png')
+  game.load.image('starsBright', 'space_stars_bright.png')
   game.load.image('bullet', 'bullet.png')
   game.load.image('ship', 'ship.png')
 }
@@ -23,7 +31,9 @@ function create() {
 
   game.physics.startSystem(Phaser.Physics.ARCADE)
 
-  game.add.tileSprite(0, 0, game.width, game.height, 'bg')
+  game.add.tileSprite(0, 0, 800, 600, 'space')
+  starsDim = game.add.tileSprite(0, 0, 800, 600, 'starsDim')
+  starsBright = game.add.tileSprite(0, 0, 800, 600, 'starsBright')
 
   bullets = game.add.group()
   bullets.enableBody = true
@@ -31,7 +41,6 @@ function create() {
   bullets.createMultiple(40, 'bullet')
   bullets.setAll('anchor.x', 0.5)
   bullets.setAll('anchor.y', 0.5)
-
 
   player = game.add.sprite(75, 75, 'ship')
   player.anchor.set(0.5, 0.5)
@@ -45,19 +54,22 @@ function create() {
 }
 
 function update() {
-  if (player.alive) {
+  if (isAlive(player)) {
     if (cursors.up.isDown) {
-      game.physics.arcade.accelerationFromRotation(player.rotation, 200, player.body.acceleration);
+      game.physics.arcade.accelerationFromRotation(player.rotation, 200, player.body.acceleration)
+      starsBright.tilePosition.y += 8
+      starsDim.tilePosition.y -= 8
     } else {
-      player.body.acceleration.set(0);
+      player.body.acceleration.set(0)
     }
 
     if (cursors.left.isDown) {
-      player.body.angularVelocity = -300;
+      player.body.angularVelocity = -300
+
     } else if (cursors.right.isDown) {
-      player.body.angularVelocity = 300;
+      player.body.angularVelocity = 300
     } else {
-      player.body.angularVelocity = 0;
+      player.body.angularVelocity = 0
     }
   }
 
