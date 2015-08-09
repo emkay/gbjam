@@ -104,4 +104,5 @@ function update() {
 
   // collision stuff
   game.physics.arcade.collide(player, asteroid)
+  game.physics.arcade.collide(bullet, asteroid)
 }
