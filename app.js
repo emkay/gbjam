@@ -13,6 +13,7 @@ var starsBright
 var bullet
 var bullets
 var bulletTime = 0
+var slime
 
 function isAlive(player) {
   return player.alive
@@ -26,6 +27,7 @@ function preload() {
   game.load.image('ship', 'assets/ship.png')
   game.load.image('asteroidSmall', 'assets/asteroid_small.png')
   game.load.image('asteroidMed', 'assets/asteroid_medium.png')
+  game.load.spritesheet('slime', 'assets/space-slime.png', 10, 12)
 }
 
 function create() {
@@ -38,6 +40,10 @@ function create() {
   game.add.tileSprite(0, 0, 1920, 1200, 'space')
   starsDim = game.add.tileSprite(0, 0, 1920, 1200, 'starsDim')
   starsBright = game.add.tileSprite(0, 0, 1920, 1200, 'starsBright')
+
+  slime = game.add.sprite(100, 100, 'slime')
+  slime.animations.add('move')
+  slime.animations.play('move', 10, true)
 
   bullets = game.add.group()
   bullets.enableBody = true
@@ -53,9 +59,12 @@ function create() {
 
   game.physics.enable(player, Phaser.Physics.ARCADE)
   game.physics.enable(asteroid, Phaser.Physics.ARCADE)
+  game.physics.enable(slime, Phaser.Physics.ARCADE)
 
   player.body.collideWorldBounds = true
-  player.body.immovable = true
+
+  slime.body.collideWorldBounds = true
+  slime.body.bounce.setTo(1, 1)
 
   asteroid.body.collideWorldBounds = true
   asteroid.body.bounce.setTo(1, 1)
@@ -100,9 +109,14 @@ function update() {
     }
   }
 
+  slime.x += 0.2
+  slime.y += 0.2
   game.world.wrap(player, 0, true)
 
   // collision stuff
   game.physics.arcade.collide(player, asteroid)
   game.physics.arcade.collide(bullet, asteroid)
+  game.physics.arcade.collide(slime, player)
+  game.physics.arcade.collide(slime, bullet)
+  game.physics.arcade.collide(slime, asteroid)
 }
