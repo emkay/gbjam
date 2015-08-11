@@ -64,6 +64,8 @@ function create() {
   state.bullets.createMultiple(40, 'bullet')
   state.bullets.setAll('anchor.x', 0.5)
   state.bullets.setAll('anchor.y', 0.5)
+  state.bullet = null
+  state.bulletTime = 0
 
   state.player = game.add.sprite(75, 75, 'ship')
   state.player.anchor.set(0.5, 0.5)
@@ -99,9 +101,6 @@ function update() {
   var slime = state.slime
   var cursors = state.cursors
   var fireButton = state.fireButton
-  var bullets = state.bullets
-  var bulletTime = state.bulletTime
-  var bullet
 
   if (isAlive(player)) {
     if (cursors.up.isDown) {
@@ -120,15 +119,15 @@ function update() {
   }
 
   if (fireButton.isDown) {
-    if (game.time.now > bulletTime) {
-      bullet = bullets.getFirstExists(false)
+    if (game.time.now > state.bulletTime) {
+      state.bullet = state.bullets.getFirstExists(false)
 
-      if (bullet) {
-        bullet.reset(player.body.x + 10, player.body.y + 10)
-        bullet.lifespan = 1000
-        bullet.rotation = player.rotation
-        game.physics.arcade.velocityFromRotation(player.rotation, 400, bullet.body.velocity)
-        bulletTime = game.time.now + 200
+      if (state.bullet) {
+        state.bullet.reset(player.body.x + 10, player.body.y + 10)
+        state.bullet.lifespan = 1000
+        state.bullet.rotation = player.rotation
+        game.physics.arcade.velocityFromRotation(player.rotation, 400, state.bullet.body.velocity)
+        state.bulletTime = game.time.now + 400
       }
     }
   }
@@ -150,8 +149,8 @@ function update() {
   }
   // collision stuff
   game.physics.arcade.collide(player, asteroid, collideHandler)
-  game.physics.arcade.collide(bullet, asteroid, collideHandler)
-  game.physics.arcade.collide(bullet, slime, collideHandler)
+  game.physics.arcade.collide(state.bullet, asteroid, collideHandler)
+  game.physics.arcade.collide(state.bullet, slime, collideHandler)
   game.physics.arcade.collide(slime, asteroid, collideHandler)
   game.physics.arcade.collide(player, slime, collideHandler)
 }
