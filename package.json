@@ -23,7 +23,8 @@
   },
   "homepage": "https://github.com/emkay/gbjam#readme",
   "dependencies": {
-    "pathfinding": "^0.4.17"
+    "pathfinding": "^0.4.17",
+    "webworkify": "^1.0.2"
   },
   "devDependencies": {
     "browserify": "^11.0.1",
