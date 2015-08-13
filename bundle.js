@@ -86,6 +86,9 @@ function create() {
 
   game.physics.startSystem(Phaser.Physics.ARCADE)
 
+  game.scale.scaleMode = Phaser.ScaleManager.USER_SCALE
+  game.scale.setUserScale(3, 3)
+
   game.add.tileSprite(0, 0, 1920, 1200, 'space')
   state.starsDim = game.add.tileSprite(0, 0, 1920, 1200, 'starsDim')
   state.starsBright = game.add.tileSprite(0, 0, 1920, 1200, 'starsBright')
