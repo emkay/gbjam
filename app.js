@@ -3,6 +3,7 @@ var w = work(require('./worker.js'))
 
 w.addEventListener('message', function (ev) {
   var data = ev.data
+  state.movements = data
 })
 
 var game = new Phaser.Game(160, 144, Phaser.AUTO, '', {
@@ -22,21 +23,50 @@ function randomInt(min, max) {
 }
 
 function createAsteroidField() {
+  var isSmall
+  var type
+  var x
+  var y
+  var a
+  var i
   state.asteroids = game.add.group()
   state.asteroids.enableBody = true
   state.asteroids.physicsBodyType = Phaser.Physics.ARCADE
 
-  for (var i = 0; i < 40; i++) {
-    var x = randomInt(500, 1000)
-    var y = randomInt(500, 1000)
-    var a = state.asteroids.create(x, y, 'asteroidSmall')
+  for (i = 0; i < 40; i++) {
+    isSmall = !!randomInt(0, 1);
+    type = isSmall ? 'asteroidSmall' : 'asteroidMed'
+    x = randomInt(500, 1000)
+    y = randomInt(500, 1000)
+    a = state.asteroids.create(x, y, type)
     a.name = 'a' + i
     a.body.velocity.x = 5
     a.body.velocity.y = -5
+    a.body.bounce.setTo(1, 1)
   }
 }
 
-function preload() {
+function createSlimeGang() {
+  state.slimes= game.add.group()
+  state.slimes.enableBody = true
+  state.slimes.physicsBodyType = Phaser.Physics.ARCADE
+  var slime
+  var x
+  var y
+
+  for (i = 0; i < 20; i++) {
+    x = game.world.randomX
+    y = game.world.randomY
+    slime = state.slimes.create(x, y, 'slime')
+    slime.name = 'slime' + i
+    slime.body.bounce.setTo(1, 1)
+    slime.animations.add('move')
+    slime.animations.play('move', 8, true)
+    slime.body.collideWorldBounds = true
+  }
+}
+
+function preload(game) {
   game.load.image('space', 'assets/space.png')
   game.load.image('starsDim', 'assets/space_stars_dim.png')
   game.load.image('starsBright', 'assets/space_stars_bright.png')
@@ -66,11 +96,7 @@ function create() {
     explosion.anchor.y = 0.5
     explosion.animations.add('boom')
   }, this)
-
-  state.slime = game.add.sprite(randomInt(0, 100), randomInt(0, 100), 'slime')
-  state.slime.animations.add('move')
-  state.slime.animations.play('move', 8, true)
-
+ 
   state.bullets = game.add.group()
   state.bullets.enableBody = true
   state.bullets.physicsBodyType = Phaser.Physics.ARCADE
@@ -81,36 +107,34 @@ function create() {
   state.bulletTime = 0
 
   createAsteroidField()
+  createSlimeGang()
 
   state.player = game.add.sprite(75, 75, 'ship')
   state.player.anchor.set(0.5, 0.5)
+  state.player.health = 20
+  state.player.damage = function damage() {
+    state.player.health -= 1
+    if (state.player.health <= 0) {
+      state.player.kill()
+      return true
+    }
+
+    return false
+  }
 
   game.physics.enable(state.player, Phaser.Physics.ARCADE)
-  game.physics.enable(state.slime, Phaser.Physics.ARCADE)
 
   state.player.body.collideWorldBounds = true
-
-  state.slime.body.collideWorldBounds = true
-  state.slime.body.bounce.setTo(1, 1)
 
   state.player.body.drag.set(100)
   state.player.body.maxVelocity.set(100)
   state.cursors = game.input.keyboard.createCursorKeys()
   state.fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR)
   game.camera.follow(state.player)
-
-  //console.log(state.slime.x, state.slime.y)
-  w.postMessage({
-    ax: state.slime.x,
-    ay: state.slime.y,
-    bx: state.player.x,
-    by: state.player.y
-  })
 }
 
 function update() {
   var player = state.player
-  var slime = state.slime
   var cursors = state.cursors
   var fireButton = state.fireButton
 
@@ -146,6 +170,9 @@ function update() {
 
   // move stuff
 
+  //state.slime.body.x += randomInt(-1, 1)
+  //state.slime.body.y += randomInt(-1, 1)
+
   game.world.wrap(player, 0, true)
 
   // collision stuff
@@ -158,14 +185,17 @@ function update() {
       explosion.reset(thing2.body.x, thing2.body.y)
       explosion.play('boom', 8, false, true)
     }
-    console.log(thing1.key, 'hit', thing2.key)
+
+    if (thing1.key === 'ship') {
+      thing1.damage()
+    }
   }
 
   game.physics.arcade.collide(state.asteroids, state.asteroids, collideHandler)
   game.physics.arcade.collide(state.player, state.asteroids, collideHandler)
   game.physics.arcade.collide(state.bullet, state.asteroids, collideHandler)
-  game.physics.arcade.collide(slime, state.asteroids, collideHandler)
+  game.physics.arcade.collide(state.slimes, state.asteroids, collideHandler)
 
-  game.physics.arcade.collide(state.bullet, slime, collideHandler)
-  game.physics.arcade.collide(player, slime, collideHandler)
+  game.physics.arcade.collide(state.bullet, state.slimes, collideHandler)
+  game.physics.arcade.collide(state.player, state.slimes, collideHandler)
 }
