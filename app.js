@@ -6,7 +6,7 @@ var gameLoop = require('./lib/game')
 var screenX = 160
 var screenY = 144
 
-var game = new Phaser.Game(screenX, screenY, Phaser.AUTO)
+var game = new Phaser.Game(screenX, screenY, Phaser.CANVAS)
 
 game.state.add('boot', boot)
 //game.state.add('preloader', preloader)
