@@ -21,12 +21,14 @@ function Boot(game) {
 
 Boot.prototype.preload = function preload() {
   this.game.load.audio('intro', 'assets/intro.mp3')
+  this.game.load.audio('spaceMusic', 'assets/space.mp3')
   this.game.load.image('title', 'assets/title-screen.png')
   this.game.load.image('gameOver', 'assets/game-over.png')
   this.game.load.image('space', 'assets/space.png')
   this.game.load.image('starsDim', 'assets/space_stars_dim.png')
   this.game.load.image('starsBright', 'assets/space_stars_bright.png')
   this.game.load.image('bullet', 'assets/bullet.png')
+  this.game.load.image('missle', 'assets/missle.png')
   this.game.load.image('ship', 'assets/ship.png')
   this.game.load.image('asteroidSmall', 'assets/asteroid_small.png')
   this.game.load.image('asteroidMed', 'assets/asteroid_medium.png')
@@ -57,6 +59,10 @@ function GameLoop(game) {
 GameLoop.prototype.create = function create() {
   var self = this
 
+  this.music = {}
+  this.music.space = this.game.add.audio('spaceMusic')
+  this.music.space.loopFull(0.1)
+
   this.space = this.game.add.tileSprite(0, 0, 1920, 1200, 'space')
   this.starsDim = this.game.add.tileSprite(0, 0, 1920, 1200, 'starsDim')
   this.starsBright = this.game.add.tileSprite(0, 0, 1920, 1200, 'starsBright')
@@ -77,6 +83,15 @@ GameLoop.prototype.create = function create() {
   this.bullets.setAll('anchor.y', 0.5)
   this.bullet = null
   this.bulletTime = 0
+
+  this.missles= this.game.add.group()
+  this.missles.enableBody = true
+  this.missles.physicsBodyType = Phaser.Physics.ARCADE
+  this.missles.createMultiple(40, 'missle')
+  this.missles.setAll('anchor.x', 0.5)
+  this.missles.setAll('anchor.y', 0.5)
+  this.missle = null
+  this.missleTime = 0
 
   this.createAsteroidField()
   this.createSlimeGang()
@@ -105,6 +120,7 @@ GameLoop.prototype.create = function create() {
   this.player.body.maxVelocity.set(100)
   this.cursors = this.game.input.keyboard.addKeys({'up': Phaser.Keyboard.W, 'down': Phaser.Keyboard.S, 'left': Phaser.Keyboard.A, 'right': Phaser.Keyboard.D})
   this.fireButton = this.game.input.keyboard.addKey(Phaser.Keyboard.J)
+  this.missleButton = this.game.input.keyboard.addKey(Phaser.Keyboard.K)
   this.camera.follow(this.player)
 
   /*
@@ -155,12 +171,27 @@ GameLoop.prototype.update = function update() {
       if (this.bullet) {
         this.bullet.reset(this.player.body.x + 10, this.player.body.y + 10)
         this.bullet.lifespan = 1000
-        this.bullet.rotation = this.rotation
+        this.bullet.rotation = this.player.rotation
         this.physics.arcade.velocityFromRotation(this.player.rotation, 400, this.bullet.body.velocity)
         this.bulletTime = this.time.now + 400
       }
     }
   }
+
+  if (this.missleButton.isDown) {
+    if (this.time.now > this.missleTime) {
+      this.missle = this.missles.getFirstExists(false)
+
+      if (this.missle) {
+        this.missle.reset(this.player.body.x + 10, this.player.body.y + 10)
+        this.missle.lifespan = 1000
+        this.missle.rotation = this.player.rotation
+        this.physics.arcade.velocityFromRotation(this.player.rotation, 400, this.missle.body.velocity)
+        this.missleTime = this.time.now + 400
+      }
+    }
+  }
+
 
   // move stuff
 
