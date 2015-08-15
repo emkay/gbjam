@@ -34,7 +34,7 @@ Boot.prototype.preload = function preload() {
   this.game.load.image('asteroidMed', 'assets/asteroid_medium.png')
   this.game.load.spritesheet('slime', 'assets/space-slime.png', 10, 12)
   this.game.load.spritesheet('explosion', 'assets/explosion.png', 16, 16)
-  this.game.load.spritesheet('m2zak', 'assets/m2zak.png', 16, 16)
+  this.game.load.spritesheet('m2zak', 'assets/m2zak.png', 16, 20)
 }
 
 Boot.prototype.create = function create() {
@@ -84,10 +84,10 @@ GameLoop.prototype.create = function create() {
   this.bullet = null
   this.bulletTime = 0
 
-  this.missles= this.game.add.group()
+  this.missles = this.game.add.group()
   this.missles.enableBody = true
   this.missles.physicsBodyType = Phaser.Physics.ARCADE
-  this.missles.createMultiple(40, 'missle')
+  this.missles.createMultiple(5, 'missle')
   this.missles.setAll('anchor.x', 0.5)
   this.missles.setAll('anchor.y', 0.5)
   this.missle = null
@@ -99,21 +99,14 @@ GameLoop.prototype.create = function create() {
   this.player = this.game.add.sprite(75, 75, 'ship')
   this.player.anchor.set(0.5, 0.5)
   this.player.health = 20
-  this.player.damage = function damage() {
-    self.player.health -= 1
-    if (self.player.health <= 0) {
-      self.player.kill()
-      return true
-    }
-
-    return false
-  }
+  this.player.damage = damage
 
   this.m2zak = this.game.add.sprite(100, 100, 'm2zak')
 
   this.physics.enable(this.player, Phaser.Physics.ARCADE)
   this.physics.enable(this.m2zak, Phaser.Physics.ARCADE)
 
+  this.player.hasMissle = false
   this.player.body.collideWorldBounds = true
 
   this.player.body.drag.set(100)
@@ -123,24 +116,27 @@ GameLoop.prototype.create = function create() {
   this.missleButton = this.game.input.keyboard.addKey(Phaser.Keyboard.K)
   this.camera.follow(this.player)
 
-  /*
-  state.m2zak.health = 100
-  state.m2zak.damage = function damage() {
-    state.m2zak.health -= 1
-    if (state.m2zak.health <= 0) {
-      state.m2zak.kill()
-      return true
-    }
+  this.m2zak.body.immovable = true
+  this.m2zak.health = 10
+  this.m2zak.damage = damage
 
-    return false
-    }
-    */
   //state.m2zak.animations.add('thrusters')
   //state.m2zak.animations.play('thrusters')
 }
 
 function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+function damage(thing, killFn) {
+  thing.health -= 1
+  if (thing.health <= 0) {
+    thing.kill()
+    killFn()
+    return true
+  }
+
+  return false
 }
 
 GameLoop.prototype.update = function update() {
@@ -178,17 +174,17 @@ GameLoop.prototype.update = function update() {
     }
   }
 
-  if (this.missleButton.isDown) {
+  var missleN = 10
+  if (this.player.hasMissle && this.missleButton.isDown) {
     if (this.time.now > this.missleTime) {
-      this.missle = this.missles.getFirstExists(false)
-
-      if (this.missle) {
-        this.missle.reset(this.player.body.x + 10, this.player.body.y + 10)
-        this.missle.lifespan = 1000
-        this.missle.rotation = this.player.rotation
-        this.physics.arcade.velocityFromRotation(this.player.rotation, 400, this.missle.body.velocity)
-        this.missleTime = this.time.now + 400
-      }
+      this.missles.forEach(function (missle) {
+        missle.reset(self.player.body.x + randomInt(1, missleN), self.player.body.y + randomInt(1, missleN))
+        missle.lifespan = 1000
+        missle.rotation = self.player.rotation
+        self.physics.arcade.velocityFromRotation(self.player.rotation, 200, missle.body.velocity)
+        self.missleTime = self.time.now + 400
+        missleN += 2
+      })
     }
   }
 
@@ -204,20 +200,40 @@ GameLoop.prototype.update = function update() {
   function ch(thing1, thing2) {
     var explosion
 
-    if (thing1.key === 'bullet') {
-      thing2.kill()
-      explosion = self.explosions.getFirstExists(false)
-      explosion.reset(thing2.body.x, thing2.body.y)
-      explosion.play('boom', 8, false, true)
+    if (thing1.key === 'bullet' || thing1.key === 'missle') {
+      thing1.reset(0,0)
+      if (typeof thing2.damage === 'function') {
+        thing2.damage(thing2, function () {
+          console.log(thing2.key, 'killed')
+          explosion = self.explosions.getFirstExists(false)
+          explosion.reset(thing2.body.x, thing2.body.y)
+          explosion.play('boom', 8, false, true)
+          if (thing2.key === 'm2zak') {
+            self.player.hasMissle = true
+            console.log('YOU GOT MISSLES!')
+          }
+        })
+      }
     }
 
     if (thing1.key === 'ship') {
-      thing1.damage()
+      thing1.damage(thing1, function () {
+        console.log(thing1.key, 'killed')
+        explosion = self.explosions.getFirstExists(false)
+        explosion.reset(thing1.body.x, thing1.body.y)
+        explosion.play('boom', 8, false, true)
+      })
     }
   }
-  
+
   this.game.physics.arcade.collide(this.asteroids, this.asteroids, ch)
+  this.game.physics.arcade.collide(this.missles, this.asteroids, ch)
+  this.game.physics.arcade.collide(this.missles, this.slimes, ch)
+  this.game.physics.arcade.collide(this.missles, this.m2zak, ch)
+
+  this.game.physics.arcade.collide(this.bullet, this.m2zak, ch)
   this.game.physics.arcade.collide(this.player, this.asteroids, ch)
+  this.game.physics.arcade.collide(this.player, this.m2zak, ch)
   this.game.physics.arcade.collide(this.bullet, this.asteroids, ch)
   this.game.physics.arcade.collide(this.slimes, this.asteroids, ch)
 
@@ -243,6 +259,8 @@ GameLoop.prototype.createAsteroidField = function createAsteroidField() {
     y = randomInt(500, 1000)
     a = this.asteroids.create(x, y, type)
     a.name = 'a' + i
+    a.health = 1
+    a.damage = damage
     a.body.velocity.x = 5
     a.body.velocity.y = -5
     a.body.bounce.setTo(1, 1)
@@ -262,6 +280,8 @@ GameLoop.prototype.createSlimeGang = function createSlimeGang() {
     y = this.game.world.randomY
     slime = this.slimes.create(x, y, 'slime')
     slime.name = 'slime' + i
+    slime.health = 1
+    slime.damage = damage
     slime.body.bounce.setTo(1, 1)
     slime.animations.add('move')
     slime.animations.play('move', 8, true)
@@ -271,11 +291,17 @@ GameLoop.prototype.createSlimeGang = function createSlimeGang() {
 
 GameLoop.prototype.restartGame = function restartGame() {
   var self = this
+  this.music.space.stop()
   this.game.camera.reset()
   this.game.add.sprite(0, 0, 'gameOver')
-  var enter = this.game.input.keyboard.addKey(Phaser.Keyboard.J)
-  enter.onDown.addOnce(function () {
+  var aButton = this.game.input.keyboard.addKey(Phaser.Keyboard.J)
+  var bButton = this.game.input.keyboard.addKey(Phaser.Keyboard.K)
+  aButton.onDown.addOnce(function () {
     self.game.state.start('mainMenu')
+  })
+
+  bButton.onDown.addOnce(function () {
+    self.game.state.start('gameLoop')
   })
 }
 
