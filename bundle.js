@@ -22,6 +22,8 @@ function Boot(game) {
 Boot.prototype.preload = function preload() {
   this.game.load.audio('intro', 'assets/intro.mp3')
   this.game.load.audio('spaceMusic', 'assets/space.mp3')
+  this.game.load.audio('explode', 'assets/explode.mp3')
+  this.game.load.audio('blaster', 'assets/blaster.mp3')
   this.game.load.image('title', 'assets/title-screen.png')
   this.game.load.image('gameOver', 'assets/game-over.png')
   this.game.load.image('space', 'assets/space.png')
@@ -71,6 +73,10 @@ GameLoop.prototype.create = function create() {
 
   console.log(worldWidth, worldHeight)
   this.counter = 0
+  this.sound = {}
+  this.sound.explode = this.game.add.audio('explode')
+  this.sound.blaster = this.game.add.audio('blaster')
+
   this.music = {}
   this.music.space = this.game.add.audio('spaceMusic')
   this.music.space.loopFull(0.1)
@@ -189,6 +195,7 @@ GameLoop.prototype.update = function update() {
       this.bullet = this.bullets.getFirstExists(false)
 
       if (this.bullet) {
+        this.sound.blaster.play()
         this.bullet.reset(this.player.body.x + 10, this.player.body.y + 10)
         this.bullet.lifespan = 1000
         this.bullet.rotation = this.player.rotation
@@ -270,6 +277,7 @@ GameLoop.prototype.update = function update() {
               explosion = self.explosions.getFirstExists(false)
               explosion.reset(thing2.body.x, thing2.body.y)
               explosion.play('boom', 8, false, true)
+              self.sound.explode.play()
             })
             return;
           } else {
@@ -282,6 +290,7 @@ GameLoop.prototype.update = function update() {
           explosion = self.explosions.getFirstExists(false)
           explosion.reset(thing2.body.x, thing2.body.y)
           explosion.play('boom', 8, false, true)
+          self.sound.explode.play()
           if (thing2.key === 'm2zak') {
             self.player.hasMissle = true
             console.log('YOU GOT MISSLES!')
