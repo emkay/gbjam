@@ -195,7 +195,7 @@ GameLoop.prototype.update = function update() {
       this.bullet = this.bullets.getFirstExists(false)
 
       if (this.bullet) {
-        this.sound.blaster.play()
+        this.sound.blaster.play('', 0, 0.2)
         this.bullet.reset(this.player.body.x + 10, this.player.body.y + 10)
         this.bullet.lifespan = 1000
         this.bullet.rotation = this.player.rotation
@@ -277,7 +277,7 @@ GameLoop.prototype.update = function update() {
               explosion = self.explosions.getFirstExists(false)
               explosion.reset(thing2.body.x, thing2.body.y)
               explosion.play('boom', 8, false, true)
-              self.sound.explode.play()
+              self.sound.explode.play('', 0, 0.3)
             })
             return;
           } else {
