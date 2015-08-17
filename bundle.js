@@ -23,6 +23,7 @@ Boot.prototype.preload = function preload() {
   this.game.load.audio('intro', 'assets/intro.mp3')
   this.game.load.audio('spaceMusic', 'assets/space.mp3')
   this.game.load.audio('explode', 'assets/explode.mp3')
+  this.game.load.audio('shipHit', 'assets/ship-hit.mp3')
   this.game.load.audio('blaster', 'assets/blaster.mp3')
   this.game.load.image('title', 'assets/title-screen.png')
   this.game.load.image('gameOver', 'assets/game-over.png')
@@ -31,6 +32,7 @@ Boot.prototype.preload = function preload() {
   this.game.load.image('starsBright', 'assets/space_stars_bright.png')
   this.game.load.image('bullet', 'assets/bullet.png')
   this.game.load.image('missle', 'assets/missle.png')
+  this.game.load.image('m2zakMissle', 'assets/m2zak_missle.png')
   this.game.load.image('ship', 'assets/ship.png')
   this.game.load.image('wall', 'assets/circuit_wall.png')
   this.game.load.image('wallH', 'assets/circuit_wall_horizontal.png')
@@ -76,6 +78,7 @@ GameLoop.prototype.create = function create() {
   this.sound = {}
   this.sound.explode = this.game.add.audio('explode')
   this.sound.blaster = this.game.add.audio('blaster')
+  this.sound.shipHit = this.game.add.audio('shipHit')
 
   this.music = {}
   this.music.space = this.game.add.audio('spaceMusic')
@@ -111,6 +114,15 @@ GameLoop.prototype.create = function create() {
   this.missle = null
   this.missleTime = 0
 
+  this.m2zakMissles = this.game.add.group()
+  this.m2zakMissles.enableBody = true
+  this.m2zakMissles.physicsBodyType = Phaser.Physics.ARCADE
+  this.m2zakMissles.createMultiple(5, 'm2zakMissle')
+  this.m2zakMissles.setAll('anchor.x', 0.5)
+  this.m2zakMissles.setAll('anchor.y', 0.5)
+  this.m2zakMissle = null
+  this.m2zakMissleTime = 0
+
   this.createAsteroidField()
   this.createSlimeGang()
   this.createWalls()
@@ -118,7 +130,6 @@ GameLoop.prototype.create = function create() {
   this.player = this.game.add.sprite(75, 75, 'ship')
   this.player.anchor.set(0.5, 0.5)
   this.player.health = 20
-  this.player.damage = damage
 
   this.m2zak = this.game.add.sprite(this.game.world.randomX, this.game.world.randomY, 'm2zak')
 
@@ -138,9 +149,8 @@ GameLoop.prototype.create = function create() {
 
   this.m2zak.body.immovable = true
   this.m2zak.health = 10
-  this.m2zak.damage = damage
   this.m2zak.anchor.set(0.5, 0.5)
-  this.m2zak.body.collideWorldBounds = true
+  //this.m2zak.body.collideWorldBounds = true
 
   //state.m2zak.animations.add('thrusters')
   //state.m2zak.animations.play('thrusters')
@@ -150,14 +160,13 @@ function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
-function damage(thing, killFn) {
-  if (!thing.pauseDamage) {
-    thing.pauseDamage = true
-    thing.health -= 1
+GameLoop.prototype.damage = function damage(thing, killFn) {
+  thing.health -= 1
+
+  if (thing.key === 'ship') {
+    this.sound.shipHit.play('', 0, 0.2)
   }
-  setTimeout(function () {
-    thing.pauseDamage = false
-  }, 300)
+
   if (thing.health <= 0) {
     thing.kill()
     killFn()
@@ -238,9 +247,22 @@ GameLoop.prototype.update = function update() {
     this.game.physics.arcade.moveToObject(this.m2zak, this.player, 100)
     this.m2zak.isMoving = true
     console.log('I WILL FIND YOU')
+
     setTimeout(function () {
-        self.m2zak.isMoving = false
-    }, 5000)
+      self.m2zak.isMoving = false
+    }, 3000)
+  }
+
+  var m2zakMissleN = 10
+  if (this.m2zak.alive && this.time.now > this.m2zakMissleTime) {
+    this.m2zakMissles.forEach(function (missle) {
+      missle.reset(self.m2zak.body.x + randomInt(1, m2zakMissleN), self.m2zak.body.y + randomInt(1, m2zakMissleN))
+      missle.lifespan = 1000
+      missle.rotation = self.m2zak.rotation
+      self.physics.arcade.velocityFromRotation(self.m2zak.rotation, -200, missle.body.velocity)
+      self.m2zakMissleTime = self.time.now + 400
+      m2zakMissleN += 2
+    })
   }
 
   if (!this.m2zak.isMoving) {
@@ -254,9 +276,7 @@ GameLoop.prototype.update = function update() {
       setTimeout(function () {
         self.m2zak.isMoving = false
         console.log('stop moving')
-      }, 10000)
-    } else {
-      // attack?
+      }, 5000)
     }
   }
 
@@ -269,39 +289,41 @@ GameLoop.prototype.update = function update() {
     if (thing1.key === 'bullet' || thing1.key === 'missle') {
       thing1.reset(0,0)
 
-      if (typeof thing2.damage === 'function') {
-        if (thing2.key === 'door') {
-          if (thing1.key === 'missle') {
-            thing2.damage(thing2, function () {
-              console.log(thing2.key, 'killed')
-              explosion = self.explosions.getFirstExists(false)
-              explosion.reset(thing2.body.x, thing2.body.y)
-              explosion.play('boom', 8, false, true)
-              self.sound.explode.play('', 0, 0.3)
-            })
-            return;
-          } else {
-            return;
-          }
+      if (thing2.key === 'door') {
+        if (thing1.key === 'missle') {
+          self.damage(thing2, function () {
+            console.log(thing2.key, 'killed')
+            explosion = self.explosions.getFirstExists(false)
+            explosion.reset(thing2.body.x, thing2.body.y)
+            explosion.play('boom', 8, false, true)
+            self.sound.explode.play('', 0, 0.3)
+          })
+          return;
+        } else {
+          return;
         }
-
-        thing2.damage(thing2, function () {
-          console.log(thing2.key, 'killed')
-          explosion = self.explosions.getFirstExists(false)
-          explosion.reset(thing2.body.x, thing2.body.y)
-          explosion.play('boom', 8, false, true)
-          self.sound.explode.play()
-          if (thing2.key === 'm2zak') {
-            self.player.hasMissle = true
-            console.log('YOU GOT MISSLES!')
-          }
-        })
       }
+
+      if (thing2.key === 'wall') {
+        return;
+      }
+
+      self.damage(thing2, function () {
+        console.log(thing2.key, 'killed')
+        explosion = self.explosions.getFirstExists(false)
+        explosion.reset(thing2.body.x, thing2.body.y)
+        explosion.play('boom', 8, false, true)
+        self.sound.explode.play()
+        if (thing2.key === 'm2zak') {
+          self.player.hasMissle = true
+          console.log('YOU GOT MISSLES!')
+        }
+      })
     }
 
     if (thing1.key === 'ship' && thing2.key !== 'wall' && thing2.key !== 'door') {
       console.log(thing1.key, thing2.key)
-      thing1.damage(thing1, function () {
+      self.damage(thing1, function () {
         console.log(thing1.key, 'killed')
         explosion = self.explosions.getFirstExists(false)
         explosion.reset(thing1.body.x, thing1.body.y)
@@ -321,6 +343,8 @@ GameLoop.prototype.update = function update() {
   this.game.physics.arcade.collide(this.missles, this.slimes, ch)
   this.game.physics.arcade.collide(this.missles, this.m2zak, ch)
 
+  this.game.physics.arcade.collide(this.m2zakMissles, this.player, ch)
+
   this.game.physics.arcade.collide(this.bullet, this.m2zak, ch)
   this.game.physics.arcade.collide(this.player, this.asteroids, ch)
   this.game.physics.arcade.collide(this.player, this.m2zak, ch)
@@ -336,6 +360,8 @@ GameLoop.prototype.createWalls = function createWalls() {
   self.walls = this.game.add.group()
   self.walls.enableBody = true
   self.walls.physicsBodyType = Phaser.Physics.ARCADE
+  var hwX = 1115
+
   function verticleWall(x, y) {
     var wall = self.walls.create(x, y, 'wall')
     wall.body.immovable = true
@@ -347,14 +373,18 @@ GameLoop.prototype.createWalls = function createWalls() {
     wall.key = 'wall'
   }
 
-  var door = self.walls.create(100, 85, 'door')
+  var door = self.walls.create(1100, 585, 'door')
   door.body.immovable = true
   door.health = 5
-  door.damage = damage
-  verticleWall(100, 21)
-  verticleWall(100, 117)
-  horizontalWall(115, 20)
-  horizontalWall(115, 166)
+  verticleWall(1100, 521)
+  verticleWall(1100, 617)
+  verticleWall(1100, 713)
+
+  for (var i = 0; i < 18; i++) {
+    horizontalWall(hwX, 520)
+    horizontalWall(hwX, 666)
+    hwX += 45
+  }
 }
 
 GameLoop.prototype.createAsteroidField = function createAsteroidField() {
@@ -376,7 +406,6 @@ GameLoop.prototype.createAsteroidField = function createAsteroidField() {
     a = this.asteroids.create(x, y, type)
     a.name = 'a' + i
     a.health = 1
-    a.damage = damage
     a.body.velocity.x = 5
     a.body.velocity.y = -5
     a.body.bounce.setTo(1, 1)
@@ -397,7 +426,6 @@ GameLoop.prototype.createSlimeGang = function createSlimeGang() {
     slime = this.slimes.create(x, y, 'slime')
     slime.name = 'slime' + i
     slime.health = 1
-    slime.damage = damage
     slime.body.bounce.setTo(1, 1)
     slime.animations.add('move')
     slime.animations.play('move', 8, true)
