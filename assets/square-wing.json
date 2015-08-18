@@ -1,0 +1,44 @@
+{"frames": {
+
+"square_wing_00.png":
+{
+	"frame": {"x":2,"y":18,"w":14,"h":11},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":14,"h":11},
+	"sourceSize": {"w":14,"h":11}
+},
+"square_wing_01.png":
+{
+	"frame": {"x":2,"y":2,"w":14,"h":14},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":14,"h":14},
+	"sourceSize": {"w":14,"h":14}
+},
+"square_wing_02.png":
+{
+	"frame": {"x":18,"y":2,"w":14,"h":14},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":14,"h":14},
+	"sourceSize": {"w":14,"h":14}
+},
+"square_wing_03.png":
+{
+	"frame": {"x":34,"y":2,"w":14,"h":14},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":14,"h":14},
+	"sourceSize": {"w":14,"h":14}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "square-wing.png",
+	"format": "RGBA8888",
+	"size": {"w":50,"h":31},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:d58f04ea8376e5a41257cdf713ffc3ac:98d56f16ea32138c1bd47b2c0853958b:02977726573444dd962c2ed3de35e5f2$"
+}
+}
