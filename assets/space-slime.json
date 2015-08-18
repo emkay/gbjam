@@ -1,0 +1,36 @@
+{"frames": {
+
+"space_slime_01.png":
+{
+	"frame": {"x":2,"y":2,"w":8,"h":12},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":2,"y":0,"w":8,"h":12},
+	"sourceSize": {"w":10,"h":12}
+},
+"space_slime_02.png":
+{
+	"frame": {"x":12,"y":2,"w":9,"h":11},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":1,"y":0,"w":9,"h":11},
+	"sourceSize": {"w":10,"h":12}
+},
+"space_slime_03.png":
+{
+	"frame": {"x":23,"y":2,"w":8,"h":11},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":2,"y":0,"w":8,"h":11},
+	"sourceSize": {"w":10,"h":12}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "space-slime.png",
+	"format": "RGBA8888",
+	"size": {"w":34,"h":16},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:6c05d6024b9c4e907c099983c973ad90:4eb8b240a087aa3f9fbf8e4f6dc07e87:3c431f727435680f1c9f38fb88fb626f$"
+}
+}

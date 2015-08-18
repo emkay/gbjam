@@ -1,0 +1,28 @@
+{"frames": {
+
+"new_door_01.png":
+{
+	"frame": {"x":2,"y":2,"w":16,"h":32},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":16,"h":32},
+	"sourceSize": {"w":16,"h":32}
+},
+"new_door_02.png":
+{
+	"frame": {"x":2,"y":36,"w":16,"h":32},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":16,"h":32},
+	"sourceSize": {"w":16,"h":32}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "door.png",
+	"format": "RGBA8888",
+	"size": {"w":20,"h":70},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:2f9fc12fb776aad0f47be1025a93f3b9:8db301e74e8b6adbf1763bec2048e6e5:2a34754d8ab80f40243b52c06ba4cba5$"
+}
+}

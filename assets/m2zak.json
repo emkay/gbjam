@@ -2,7 +2,7 @@
 
 "m2zak_thrusters_01.png":
 {
-	"frame": {"x":2,"y":2,"w":14,"h":16},
+	"frame": {"x":72,"y":2,"w":14,"h":16},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":14,"h":16},
@@ -10,7 +10,7 @@
 },
 "m2zak_thrusters_02.png":
 {
-	"frame": {"x":18,"y":2,"w":15,"h":16},
+	"frame": {"x":38,"y":2,"w":15,"h":16},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":15,"h":16},
@@ -18,7 +18,7 @@
 },
 "m2zak_thrusters_03.png":
 {
-	"frame": {"x":35,"y":2,"w":16,"h":16},
+	"frame": {"x":2,"y":2,"w":16,"h":16},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":16,"h":16},
@@ -26,7 +26,7 @@
 },
 "m2zak_thrusters_04.png":
 {
-	"frame": {"x":53,"y":2,"w":14,"h":16},
+	"frame": {"x":88,"y":2,"w":14,"h":16},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":14,"h":16},
@@ -34,7 +34,7 @@
 },
 "m2zak_thrusters_05.png":
 {
-	"frame": {"x":69,"y":2,"w":15,"h":16},
+	"frame": {"x":55,"y":2,"w":15,"h":16},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":15,"h":16},
@@ -42,7 +42,7 @@
 },
 "m2zak_thrusters_06.png":
 {
-	"frame": {"x":86,"y":2,"w":16,"h":16},
+	"frame": {"x":20,"y":2,"w":16,"h":16},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":16,"h":16},
@@ -55,6 +55,6 @@
 	"format": "RGBA8888",
 	"size": {"w":104,"h":20},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:c8b1d8b5ad79a072609374fa8afcc5ff:ff3b65b7dbc16b5bceefa3ed96d7e323:76e1c31b785db64fe43c30b09afa12f8$"
+	"smartupdate": "$TexturePacker:SmartUpdate:4f8558a34b4fe13f0ec2a4e380234a63:ff3b65b7dbc16b5bceefa3ed96d7e323:76e1c31b785db64fe43c30b09afa12f8$"
 }
 }

@@ -1,0 +1,36 @@
+{"frames": {
+
+"thrusters_01.png":
+{
+	"frame": {"x":21,"y":2,"w":5,"h":7},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":5,"w":5,"h":7},
+	"sourceSize": {"w":8,"h":17}
+},
+"thrusters_02.png":
+{
+	"frame": {"x":12,"y":2,"w":7,"h":9},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":1,"y":4,"w":7,"h":9},
+	"sourceSize": {"w":8,"h":17}
+},
+"thrusters_03.png":
+{
+	"frame": {"x":2,"y":2,"w":8,"h":11},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":3,"w":8,"h":11},
+	"sourceSize": {"w":8,"h":17}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "thrusters.png",
+	"format": "RGBA8888",
+	"size": {"w":28,"h":15},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:bcd713643e224aa5cb023af8b9d1a695:d15d6ee626ef155f7e73a3685bd93d8f:ba1b4e8f942ae14744d450cc7367bff2$"
+}
+}

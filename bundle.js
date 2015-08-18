@@ -35,14 +35,16 @@ Boot.prototype.preload = function preload() {
   this.game.load.image('ship', 'assets/ship.png')
   this.game.load.image('wall', 'assets/circuit_wall.png')
   this.game.load.image('wallH', 'assets/circuit_wall_horizontal.png')
-  this.game.load.image('door', 'assets/circuit_door.png')
   this.game.load.image('asteroidSmall', 'assets/asteroid_small.png')
   this.game.load.image('asteroidMed', 'assets/asteroid_medium.png')
-  this.game.load.spritesheet('slime', 'assets/space-slime.png', 10, 12)
-  this.game.load.spritesheet('explosion', 'assets/explosion.png', 16, 16)
-  this.game.load.spritesheet('m2zak', 'assets/m2zak.png', 16, 20)
-  this.game.load.spritesheet('title', 'assets/title-screen-ani.png')
-  this.game.load.atlasJSONHash('title', 'assets/title-screen-ani.png', 'assets/title-screen-ani.json');
+  this.game.load.image('winScreen', 'assets/win_screen.png')
+  this.game.load.atlasJSONHash('slime', 'assets/space-slime.png', 'assets/space-slime.json')
+  this.game.load.atlasJSONHash('explosion', 'assets/explosion.png', 'assets/explosion.json')
+  this.game.load.atlasJSONHash('m2zak', 'assets/m2zak.png', 'assets/m2zak.json')
+  this.game.load.atlasJSONHash('title', 'assets/title-screen-ani.png', 'assets/title-screen-ani.json')
+  this.game.load.atlasJSONHash('door', 'assets/door.png', 'assets/door.json')
+  this.game.load.atlasJSONHash('boss', 'assets/boss.png', 'assets/boss.json')
+  this.game.load.atlasJSONHash('youGotMissles', 'assets/you-got-missles.png', 'assets/you-got-missles.json')
 }
 
 Boot.prototype.create = function create() {
@@ -134,12 +136,22 @@ GameLoop.prototype.create = function create() {
 
   this.m2zak = this.game.add.sprite(this.game.world.randomX, this.game.world.randomY, 'm2zak')
 
+  this.boss = this.game.add.sprite(1500, 590, 'boss')
+  this.boss.animations.add('move')
+  this.boss.isAttacking = false
+  this.boss.countMoves = 0
+
   this.physics.enable(this.player, Phaser.Physics.ARCADE)
   this.physics.enable(this.m2zak, Phaser.Physics.ARCADE)
   this.physics.enable(this.walls, Phaser.Physics.ARCADE)
+  this.physics.enable(this.boss, Phaser.Physics.ARCADE)
 
   this.player.hasMissle = false
   this.player.body.collideWorldBounds = true
+
+  this.boss.body.immovable = true
+  this.boss.health = 30
+  this.boss.anchor.set(0.5, 0.5)
 
   this.player.body.drag.set(25)
   this.player.body.maxVelocity.set(100)
@@ -153,8 +165,8 @@ GameLoop.prototype.create = function create() {
   this.m2zak.anchor.set(0.5, 0.5)
   //this.m2zak.body.collideWorldBounds = true
 
-  //state.m2zak.animations.add('thrusters')
-  //state.m2zak.animations.play('thrusters')
+  this.m2zak.animations.add('thrusters')
+  this.m2zak.animations.play('thrusters', 10, true)
 }
 
 function randomInt(min, max) {
@@ -162,6 +174,7 @@ function randomInt(min, max) {
 }
 
 GameLoop.prototype.damage = function damage(thing, killFn) {
+  console.log('damage ', thing.key)
   thing.health -= 1
 
   if (thing.key === 'ship') {
@@ -179,6 +192,17 @@ GameLoop.prototype.damage = function damage(thing, killFn) {
 
 GameLoop.prototype.update = function update() {
   var self = this
+  var win
+
+  if (!this.boss.alive) {
+    // win screen
+    this.game.camera.reset()
+    this.music.space.stop()
+    win = this.game.add.sprite(0, 0, 'winScreen')
+    setTimeout(function () {
+      self.game.state.start('mainMenu')
+    }, 10000)
+  }
 
   this.counter += 1
 
@@ -254,6 +278,28 @@ GameLoop.prototype.update = function update() {
     }, 3000)
   }
 
+  if (this.boss.alive && this.boss.isAttacking) {
+    if (this.boss.countMoves < 50) {
+      this.boss.body.velocity.x = 10
+    } else {
+      this.boss.body.velocity.x = -10
+      this.boss.countMoves = 0
+    }
+
+    var bossSlime
+    var bossSlimeYoffset = randomInt(0, 40)
+    if ((this.boss.countMoves % 50) === 0) {
+      bossSlime = this.bossSlimes.getFirstExists(false)
+      if (bossSlime) {
+        bossSlime.reset(this.boss.body.x, this.boss.body.y + bossSlimeYoffset)
+        bossSlime.lifespan = 1000
+        this.physics.arcade.velocityFromRotation(this.boss.rotation, -200, bossSlime.body.velocity)
+      }
+    }
+
+    this.boss.countMoves += 1
+  }
+
   var m2zakMissleN = 10
   if (this.m2zak.alive && this.time.now > this.m2zakMissleTime) {
     this.m2zakMissles.forEach(function (missle) {
@@ -296,9 +342,11 @@ GameLoop.prototype.update = function update() {
             console.log(thing2.key, 'killed')
             explosion = self.explosions.getFirstExists(false)
             explosion.reset(thing2.body.x, thing2.body.y)
-            explosion.play('boom', 8, false, true)
-            self.sound.explode.play('', 0, 0.3)
+            explosion.play('boom', 12, false, true)
+            self.sound.explode.play('', 0, 0.2)
           })
+          self.boss.isAttacking = true
+          self.boss.animations.play('move', 10, true)
           return;
         } else {
           return;
@@ -310,13 +358,17 @@ GameLoop.prototype.update = function update() {
       }
 
       self.damage(thing2, function () {
+        var youGotMissles
         console.log(thing2.key, 'killed')
         explosion = self.explosions.getFirstExists(false)
         explosion.reset(thing2.body.x, thing2.body.y)
-        explosion.play('boom', 8, false, true)
+        explosion.play('boom', 12, false, true)
         self.sound.explode.play()
         if (thing2.key === 'm2zak') {
           self.player.hasMissle = true
+          youGotMissles = self.game.add.sprite(self.game.camera.x, self.game.camera.y, 'youGotMissles')
+          youGotMissles.animations.add('go')
+          youGotMissles.animations.play('go', 15, false, true)
           console.log('YOU GOT MISSLES!')
         }
       })
@@ -333,11 +385,19 @@ GameLoop.prototype.update = function update() {
     }
   }
 
+  this.game.physics.arcade.collide(this.player, this.bossSlimes, ch)
+  this.game.physics.arcade.collide(this.player, this.boss, ch)
   this.game.physics.arcade.collide(this.player, this.walls, ch)
   this.game.physics.arcade.collide(this.slimes, this.walls, ch)
   this.game.physics.arcade.collide(this.asteroids, this.walls, ch)
   this.game.physics.arcade.collide(this.bullet, this.walls, ch)
   this.game.physics.arcade.collide(this.missles, this.walls, ch)
+
+  this.game.physics.arcade.collide(this.bullet, this.bossSlimes, ch)
+  this.game.physics.arcade.collide(this.missles, this.bossSlimes, ch)
+
+  this.game.physics.arcade.collide(this.bullet, this.boss, ch)
+  this.game.physics.arcade.collide(this.missles, this.boss, ch)
 
   this.game.physics.arcade.collide(this.asteroids, this.asteroids, ch)
   this.game.physics.arcade.collide(this.missles, this.asteroids, ch)
@@ -374,12 +434,19 @@ GameLoop.prototype.createWalls = function createWalls() {
     wall.key = 'wall'
   }
 
-  var door = self.walls.create(1100, 585, 'door')
+  door = self.walls.create(1100, 585, 'door')
   door.body.immovable = true
   door.health = 5
+  var flash = door.animations.add('flash')
+  door.animations.play('flash', 15, true)
+  flash.onLoop.add(function () {
+    flash.paused = true
+    setTimeout(function () {
+      flash.paused = false
+    }, 3000)
+  })
   verticleWall(1100, 521)
   verticleWall(1100, 617)
-  verticleWall(1100, 713)
 
   for (var i = 0; i < 18; i++) {
     horizontalWall(hwX, 520)
@@ -415,11 +482,17 @@ GameLoop.prototype.createAsteroidField = function createAsteroidField() {
 
 GameLoop.prototype.createSlimeGang = function createSlimeGang() {
   this.slimes = this.game.add.group()
+  this.bossSlimes = this.game.add.group()
   this.slimes.enableBody = true
+  this.bossSlimes.enableBody = true
   this.slimes.physicsBodyType = Phaser.Physics.ARCADE
+  this.bossSlimes.physicsBodyType = Phaser.Physics.ARCADE
+
   var slime
   var x
   var y
+
+  this.bossSlimes.createMultiple(500, 'slime')
 
   for (i = 0; i < 20; i++) {
     x = this.game.world.randomX
