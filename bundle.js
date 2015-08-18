@@ -25,6 +25,7 @@ Boot.prototype.preload = function preload() {
   this.game.load.audio('explode', 'assets/explode.mp3')
   this.game.load.audio('shipHit', 'assets/ship-hit.mp3')
   this.game.load.audio('blaster', 'assets/blaster.mp3')
+  this.game.load.audio('bossMusic', 'assets/boss.mp3')
   this.game.load.image('gameOver', 'assets/game-over.png')
   this.game.load.image('space', 'assets/space.png')
   this.game.load.image('starsDim', 'assets/space_stars_dim.png')
@@ -86,6 +87,8 @@ GameLoop.prototype.create = function create() {
   this.music = {}
   this.music.space = this.game.add.audio('spaceMusic')
   this.music.space.loopFull(0.1)
+
+  this.music.boss = this.game.add.audio('bossMusic')
 
   this.space = this.game.add.tileSprite(0, 0, worldWidth, worldHeight, 'space')
   this.starsDim = this.game.add.tileSprite(0, 0, worldWidth, worldHeight, 'starsDim')
@@ -198,10 +201,8 @@ GameLoop.prototype.update = function update() {
     // win screen
     this.game.camera.reset()
     this.music.space.stop()
+    this.music.boss.stop()
     win = this.game.add.sprite(0, 0, 'winScreen')
-    setTimeout(function () {
-      self.game.state.start('mainMenu')
-    }, 10000)
   }
 
   this.counter += 1
@@ -346,6 +347,8 @@ GameLoop.prototype.update = function update() {
             self.sound.explode.play('', 0, 0.2)
           })
           self.boss.isAttacking = true
+          self.music.space.stop()
+          self.music.boss.loopFull(0.1)
           self.boss.animations.play('move', 10, true)
           return;
         } else {
@@ -516,6 +519,7 @@ GameLoop.prototype.createSlimeGang = function createSlimeGang() {
 GameLoop.prototype.restartGame = function restartGame() {
   var self = this
   this.music.space.stop()
+  this.music.boss.stop()
   this.game.camera.reset()
   this.game.add.sprite(0, 0, 'gameOver')
   var aButton = this.game.input.keyboard.addKey(Phaser.Keyboard.J)
