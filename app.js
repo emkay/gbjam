@@ -5,7 +5,7 @@ var gameLoop = require('./lib/game-loop')
 var screenX = 160
 var screenY = 144
 
-var game = new Phaser.Game(screenX, screenY, Phaser.CANVAS)
+var game = new Phaser.Game(screenX, screenY, Phaser.CANVAS, '', null, false, false)
 
 game.state.add('boot', boot)
 game.state.add('mainMenu', mainMenu)
